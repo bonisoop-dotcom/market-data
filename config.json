@@ -1,0 +1,6 @@
+{
+  "_설명": "자동 수집이 안 되는 주간·월간 지표. 바뀌면 이 값만 고치면 됨",
+  "aaii_spread": "-14 (평균 +6)", "aaii_judge": "half", "aaii_date": "11/5",
+  "bofa_cash": "3.9% · 매도 신호", "bofa_bb": "8.1 · 매도 신호", "bofa_date": "10월",
+  "sox_low_ref": "11/5"
+}
