@@ -5,18 +5,27 @@ import pandas as pd, yfinance as yf
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36"}
 PEAKS = {"SOXL": ("2026-06-22", 300.77), "^IXIC": ("2026-10-06", 27600.0)}
 
-def get(url):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read()
+def get(url, headers=None, tries=3, timeout=90):
+    import time
+    last = None
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={**UA, **(headers or {})})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:
+            last = e; time.sleep(5 * (i + 1))
+    raise last
 
 out = {"generated_utc": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z", "errors": []}
 
 # 1) 종가: SOXL, 나스닥, 반도체지수, VIX
 px = yf.download(["SOXL", "^IXIC", "^SOX", "^VIX"], period="1y", interval="1d",
                  auto_adjust=False, progress=False)["Close"].dropna(how="all")
+BASE = px["^IXIC"].dropna().index[-1]
 for t in ["SOXL", "^IXIC", "^SOX", "^VIX"]:
     s = px[t].dropna()
+    s = s[s.index <= BASE]
     d = {"date": s.index[-1].strftime("%Y-%m-%d"), "close": round(float(s.iloc[-1]), 2),
          "prev_close": round(float(s.iloc[-2]), 2),
          "chg_pct": round((s.iloc[-1] / s.iloc[-2] - 1) * 100, 2),
@@ -44,7 +53,9 @@ for t in ["SOXL", "^IXIC", "^SOX", "^VIX"]:
 
 # 2) CNN 공포탐욕지수
 try:
-    fg = json.loads(get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata"))
+    fg = json.loads(get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+                        {"Accept": "application/json, text/plain, */*", "Accept-Language": "en-US,en;q=0.9",
+                         "Origin": "https://edition.cnn.com", "Referer": "https://edition.cnn.com/"}))
     f = fg["fear_and_greed"]
     out["fear_greed"] = {"score": round(f["score"], 1), "rating": f["rating"],
                          "timestamp": f["timestamp"], "prev_close": round(f["previous_close"], 1),
@@ -62,6 +73,21 @@ for key, sid in [("us2y", "DGS2"), ("hy_oas", "BAMLH0A0HYM2")]:
                     "chg_1m": round(df.v.iloc[-1] - df.v.iloc[-22], 2),
                     "max_3m": df.v.tail(63).max()}
     except Exception as e:
+        if key == "us2y":
+            try:
+                y = dt.date.today().year
+                rows = []
+                for yr in (y - 1, y):
+                    u = ("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
+                         f"daily-treasury-rates.csv/{yr}/all?type=daily_treasury_yield_curve&field_tdr_date_value={yr}&page&_format=csv")
+                    rows.append(pd.read_csv(io.BytesIO(get(u)))[["Date", "2 Yr"]])
+                t = pd.concat(rows); t["Date"] = pd.to_datetime(t["Date"]); t = t.sort_values("Date")
+                out[key] = {"date": t.Date.iloc[-1].strftime("%Y-%m-%d"), "value": float(t["2 Yr"].iloc[-1]),
+                            "chg_1m": round(float(t["2 Yr"].iloc[-1] - t["2 Yr"].iloc[-22]), 2),
+                            "max_3m": float(t["2 Yr"].tail(63).max()), "src": "treasury"}
+                continue
+            except Exception as e2:
+                e = f"{e} / treasury: {e2}"
         out["errors"].append(f"{key}: {e}")
 
 
