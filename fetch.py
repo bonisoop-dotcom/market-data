@@ -66,7 +66,9 @@ except Exception as e:
 # 3) FRED: 2년물 금리, 하이일드 스프레드
 for key, sid in [("us2y", "DGS2"), ("hy_oas", "BAMLH0A0HYM2")]:
     try:
-        df = pd.read_csv(io.BytesIO(get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}")))
+        if key == "us2y":
+            raise RuntimeError("use treasury")  # 2년물은 재무부 공식 데이터 우선 (FRED는 GitHub 서버에서 자주 막힘)
+        df = pd.read_csv(io.BytesIO(get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}", tries=1, timeout=40)))
         df.columns = ["date", "v"]; df = df[pd.to_numeric(df.v, errors="coerce").notna()]
         df.v = df.v.astype(float)
         out[key] = {"date": df.date.iloc[-1], "value": df.v.iloc[-1],

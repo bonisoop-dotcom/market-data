@@ -61,7 +61,7 @@ sub = [("52주 신고가 / 신저가", f"{BR['new_highs']} / {BR['new_lows']}" i
        ("AAII 강세-약세 차이", f"{C['aaii_spread']}", C["aaii_judge"]),
        ("BofA 펀드매니저 현금", f"{C['bofa_cash']} ({C['bofa_date']})", "no"),
        ("BofA 강세·약세 지표", f"{C['bofa_bb']}", "no"),
-       ("하이일드 스프레드", f"{hy:.2f}%" if hy else "—", ("yes" if hy >= 5 else "half" if hy >= 4 else "no") if hy else "wait"),
+       ("하이일드 스프레드", f"{hy:.2f}%" if hy else "미확인", ("yes" if hy >= 5 else "half" if hy >= 4 else "no") if hy else "wait"),
        ("원달러 환율", f"{FX['value']:,.1f}원" if FX else "—", "info")]
 
 ok = cnt[0]
