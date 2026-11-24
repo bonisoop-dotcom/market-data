@@ -20,8 +20,24 @@ def get(url, headers=None, tries=3, timeout=90):
 out = {"generated_utc": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z", "errors": []}
 
 # 1) 종가: SOXL, 나스닥, 반도체지수, VIX
-px = yf.download(["SOXL", "^IXIC", "^SOX", "^VIX"], period="1y", interval="1d",
-                 auto_adjust=False, progress=False)["Close"].dropna(how="all")
+def download_close(tickers, tries=4):
+    """yfinance가 일부 종목을 못 받는 경우(database is locked 등) 재시도."""
+    import time
+    px = None
+    for i in range(tries):
+        try:
+            px = yf.download(tickers, period="1y", interval="1d", auto_adjust=False,
+                             progress=False, threads=False)["Close"].dropna(how="all")
+            if all(t in px.columns and px[t].dropna().size >= 200 for t in tickers):
+                return px
+        except Exception as e:
+            print(f"download retry {i + 1}: {e}")
+        time.sleep(10 * (i + 1))
+    if px is None:
+        raise RuntimeError("price download failed")
+    return px
+
+px = download_close(["SOXL", "^IXIC", "^SOX", "^VIX"])
 BASE = px["^IXIC"].dropna().index[-1]
 for t in ["SOXL", "^IXIC", "^SOX", "^VIX"]:
     s = px[t].dropna()
