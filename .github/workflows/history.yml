@@ -63,6 +63,50 @@ jobs:
               print("breadth",len(pct),pct.tail(3).to_dict())
           except Exception as e: print("breadth fail",e)
           PY
+      - name: 추가 지표 (하이일드 과거, AAII, 시장폭)
+        run: |
+          pip install -q xlrd openpyxl
+          python - <<'PY'
+          import os, io, time, requests, pandas as pd, yfinance as yf
+          os.makedirs("history", exist_ok=True)
+          UA={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36"}
+          for v in ["2023-04-01","2023-01-03","2022-06-01"]:
+              try:
+                  r=requests.get(f"https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BAMLH0A0HYM2&vintage_date={v}",headers=UA,timeout=60)
+                  print("alfred",v,r.status_code,len(r.text),r.text[:80].replace("\n"," | "))
+                  if r.ok and len(r.text)>10000: open("history/hy_alfred.csv","w").write(r.text); break
+              except Exception as e: print("alfred fail",v,e)
+          for u in ["https://www.aaii.com/files/surveys/sentiment.xls"]:
+              try:
+                  r=requests.get(u,headers=UA,timeout=60); print("aaii",r.status_code,len(r.content),r.content[:8])
+                  if r.ok and len(r.content)>50000: open("history/aaii_sentiment.xls","wb").write(r.content)
+              except Exception as e: print("aaii fail",e)
+          m=pd.read_csv("https://raw.githubusercontent.com/fja05680/sp500/master/sp500_ticker_start_end.csv")
+          m=m[(m.end_date.isna())|(m.end_date>="2009-01-01")]
+          tick=[t.replace(".","-") for t in m.ticker]
+          closes={}
+          for i in range(0,len(tick),100):
+              chunk=tick[i:i+100]
+              for k in range(3):
+                  try:
+                      d=yf.download(chunk,start="2008-01-01",auto_adjust=True,progress=False,threads=True)["Close"]
+                      for c in d.columns:
+                          if d[c].notna().sum()>250: closes[c]=d[c]
+                      break
+                  except Exception as e: print("retry",i,e); time.sleep(15)
+          px=pd.DataFrame(closes); print("tickers with data",px.shape)
+          ma=px.rolling(200,min_periods=200).mean(); above=(px>ma)&ma.notna()
+          m["t"]=[t.replace(".","-") for t in m.ticker]
+          out=[]
+          for d in above.index[above.index>="2010-01-01"]:
+              ds=str(d.date())
+              mem=m[(m.start_date<=ds)&((m.end_date.isna())|(m.end_date>ds))].t
+              cols=[c for c in mem if c in above.columns and pd.notna(ma.at[d,c])]
+              if len(cols)<200: continue
+              out.append((ds,round(above.loc[d,cols].mean()*100,1),len(cols)))
+          pd.DataFrame(out,columns=["date","above200_pct","n"]).to_csv("history/breadth_sp500.csv",index=False)
+          print("breadth rows",len(out),out[-1] if out else None)
+          PY
       - run: |
           git config user.name "market-bot"
           git config user.email "market-bot@users.noreply.github.com"
