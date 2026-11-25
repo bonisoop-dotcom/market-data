@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -q yfinance pandas requests
+      - run: pip install -q yfinance pandas requests lxml xlrd
       - name: 과거 데이터 수집
         run: |
           python - <<'PY'
@@ -35,6 +35,33 @@ jobs:
               json.dump(r.get("fear_and_greed_historical",{}),open("history/fear_greed.json","w"))
               print("fg", len(r.get("fear_and_greed_historical",{}).get("data",[])))
           except Exception as e: print("fg fail",e)
+          PY
+      - name: 추가 과거 데이터 (하이일드·AAII·200일선 비율)
+        run: |
+          python - <<'PY'
+          import io, time, requests, pandas as pd, yfinance as yf
+          UA={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36"}
+          for v in ["2023-03-01","2023-01-03","2022-12-01"]:
+              try:
+                  r=requests.get(f"https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BAMLH0A0HYM2&vintage_date={v}",headers=UA,timeout=60)
+                  print("alfred",v,r.status_code,len(r.text),r.text[:80].replace("\n"," | "))
+                  if r.ok and len(r.text)>50000: open("history/hy_alfred.csv","w").write(r.text); break
+              except Exception as e: print("alfred fail",e)
+          for u in ["https://www.aaii.com/files/surveys/sentiment.xls","https://www.aaii.com/files/surveys/sentiment.xlsx"]:
+              try:
+                  r=requests.get(u,headers=UA,timeout=60); print("aaii",u,r.status_code,len(r.content))
+                  if r.ok and len(r.content)>20000: open("history/aaii"+u[-4:].replace("xlsx",".xlsx").replace(".xls",".xls"),"wb").write(r.content); break
+              except Exception as e: print("aaii fail",e)
+          try:
+              t=pd.read_html(io.StringIO(requests.get("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",headers=UA,timeout=60).text))[0]
+              tick=[x.replace(".","-") for x in t["Symbol"]]
+              px=yf.download(tick,start="2008-06-01",auto_adjust=True,progress=False,threads=True)["Close"]
+              ma=px.rolling(200,min_periods=200).mean()
+              valid=ma.notna()
+              pct=((px>ma)&valid).sum(axis=1)/valid.sum(axis=1)*100
+              pd.DataFrame({"above200":pct.round(2),"n":valid.sum(axis=1)}).to_csv("history/breadth_current_members.csv")
+              print("breadth",len(pct),pct.tail(3).to_dict())
+          except Exception as e: print("breadth fail",e)
           PY
       - run: |
           git config user.name "market-bot"
