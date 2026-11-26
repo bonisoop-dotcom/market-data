@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-26T04:02:32Z",
+  "generated_utc": "2026-11-26T22:19:15Z",
   "errors": [
     "hy_oas: The read operation timed out"
   ],
@@ -98,11 +98,11 @@
     "max20_date": "2026-11-20"
   },
   "fear_greed": {
-    "score": 15.2,
+    "score": 15.0,
     "rating": "extreme fear",
-    "timestamp": "2026-11-25T23:59:57+00:00",
-    "prev_close": 17.4,
-    "prev_week": 29.9
+    "timestamp": "2026-11-26T01:59:59+00:00",
+    "prev_close": 15.2,
+    "prev_week": 15.9
   },
   "us2y": {
     "date": "2026-11-25",
@@ -120,6 +120,6 @@
   },
   "usdkrw": {
     "date": "2026-11-26",
-    "value": 1343.1
+    "value": 1343.3
   }
 }
