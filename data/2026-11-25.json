@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-26T22:19:15Z",
+  "generated_utc": "2026-11-27T03:45:41Z",
   "errors": [
     "hy_oas: The read operation timed out"
   ],
@@ -119,7 +119,7 @@
     "n": 499
   },
   "usdkrw": {
-    "date": "2026-11-26",
-    "value": 1343.3
+    "date": "2026-11-27",
+    "value": 1340.9
   }
 }
