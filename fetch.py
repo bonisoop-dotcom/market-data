@@ -126,6 +126,27 @@ try:
 except Exception as e:
     out["errors"].append(f"breadth: {e}")
 
+# 4-2) 반도체지수(SOX) 30종목 중 200일선 위 비율 (참고 지표, 점수에는 넣지 않음)
+#      구성종목: Nasdaq 공시 2026-11-02 기준. SOX는 매년 9월 재구성되므로 그때 갱신.
+SOX_MEMBERS = ["AMD", "ADI", "AMAT", "ARM", "ASML", "ALAB", "AVGO", "COHR", "CRDO", "ENTG",
+               "GFS", "INTC", "KLAC", "LRCX", "LSCC", "MTSI", "MRVL", "MCHP", "MU", "MPWR",
+               "NVDA", "NXPI", "ON", "Q", "QCOM", "SITM", "TSM", "TER", "TXN", "TSEM"]
+try:
+    c = yf.download(SOX_MEMBERS, period="14mo", interval="1d", auto_adjust=False,
+                    progress=False, threads=False)["Close"]
+    c = c[c.index <= BASE].dropna(axis=1, thresh=200)
+    last = c.ffill().iloc[-1]; ma200 = c.rolling(200).mean().iloc[-1]; ma50 = c.rolling(50).mean().iloc[-1]
+    ok = last.notna() & ma200.notna()
+    above = (last[ok] > ma200[ok])
+    out["sox_breadth"] = {"date": c.index[-1].strftime("%Y-%m-%d"),
+                          "above200_pct": round(float(above.mean() * 100), 1),
+                          "above50_pct": round(float((last[ok] > ma50[ok]).mean() * 100), 1),
+                          "above200": sorted(above[above].index.tolist()),
+                          "n": int(ok.sum()), "members_asof": "2026-11-02",
+                          "missing": sorted(set(SOX_MEMBERS) - set(last[ok].index))}
+except Exception as e:
+    out["errors"].append(f"sox_breadth: {e}")
+
 # 5) 원달러 환율
 try:
     fx = yf.download("KRW=X", period="1mo", progress=False)["Close"].dropna()
