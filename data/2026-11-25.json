@@ -1,7 +1,9 @@
 {
-  "generated_utc": "2026-11-28T01:16:58Z",
+  "generated_utc": "2026-11-28T01:37:06Z",
   "errors": [
-    "hy_oas: The read operation timed out"
+    "hy_oas: The read operation timed out",
+    "breadth: only 1 of 503 stocks downloaded",
+    "sox_breadth: only 0 of 30 members downloaded"
   ],
   "SOXL": {
     "date": "2026-11-25",
@@ -110,53 +112,6 @@
     "chg_1m": -0.01,
     "max_3m": 4.92,
     "src": "treasury"
-  },
-  "breadth": {
-    "date": "2026-11-27",
-    "above200_pct": 0.0,
-    "new_highs": 25,
-    "new_lows": 1,
-    "n": 1
-  },
-  "sox_breadth": {
-    "date": "2026-11-27",
-    "above200_pct": NaN,
-    "above50_pct": NaN,
-    "above200": [],
-    "n": 0,
-    "members_asof": "2026-11-02",
-    "missing": [
-      "ADI",
-      "ALAB",
-      "AMAT",
-      "AMD",
-      "ARM",
-      "ASML",
-      "AVGO",
-      "COHR",
-      "CRDO",
-      "ENTG",
-      "GFS",
-      "INTC",
-      "KLAC",
-      "LRCX",
-      "LSCC",
-      "MCHP",
-      "MPWR",
-      "MRVL",
-      "MTSI",
-      "MU",
-      "NVDA",
-      "NXPI",
-      "ON",
-      "Q",
-      "QCOM",
-      "SITM",
-      "TER",
-      "TSEM",
-      "TSM",
-      "TXN"
-    ]
   },
   "usdkrw": {
     "date": "2026-11-27",
