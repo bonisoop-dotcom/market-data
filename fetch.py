@@ -119,6 +119,8 @@ try:
     ma200 = c.rolling(200).mean().iloc[-1]
     hi = c.tail(252).max(); lo = c.tail(252).min()
     ok = last.notna() & ma200.notna()
+    if ok.sum() < 400:
+        raise RuntimeError(f"only {int(ok.sum())} of {len(tick)} stocks downloaded")
     out["breadth"] = {"date": c.index[-1].strftime("%Y-%m-%d"),
                       "above200_pct": round(float((last[ok] > ma200[ok]).mean() * 100), 1),
                       "new_highs": int((last >= hi).sum()), "new_lows": int((last <= lo).sum()),
@@ -137,6 +139,8 @@ try:
     c = c[c.index <= BASE].dropna(axis=1, thresh=200)
     last = c.ffill().iloc[-1]; ma200 = c.rolling(200).mean().iloc[-1]; ma50 = c.rolling(50).mean().iloc[-1]
     ok = last.notna() & ma200.notna()
+    if ok.sum() < 20:
+        raise RuntimeError(f"only {int(ok.sum())} of 30 members downloaded")
     above = (last[ok] > ma200[ok])
     out["sox_breadth"] = {"date": c.index[-1].strftime("%Y-%m-%d"),
                           "above200_pct": round(float(above.mean() * 100), 1),
