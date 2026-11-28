@@ -1,14 +1,15 @@
 {
-  "generated_utc": "2026-11-27T22:18:50Z",
+  "generated_utc": "2026-11-28T01:16:58Z",
   "errors": [
     "hy_oas: The read operation timed out"
   ],
   "SOXL": {
-    "date": "2026-11-27",
-    "close": 36.57,
-    "prev_close": 32.02,
-    "chg_pct": 14.21,
+    "date": "2026-11-25",
+    "close": 32.02,
+    "prev_close": 32.6,
+    "chg_pct": -1.78,
     "last10": {
+      "11/12": 65.53,
       "11/13": 58.32,
       "11/16": 48.76,
       "11/17": 49.07,
@@ -17,14 +18,13 @@
       "11/20": 30.88,
       "11/23": 43.21,
       "11/24": 32.6,
-      "11/25": 32.02,
-      "11/27": 36.57
+      "11/25": 32.02
     },
     "peak_date": "2026-06-22",
     "peak": 300.77,
-    "drawdown_pct": -87.8,
-    "breakeven_pct": 722.5,
-    "days_since_peak": 158,
+    "drawdown_pct": -89.4,
+    "breakeven_pct": 839.3,
+    "days_since_peak": 156,
     "low": 30.88,
     "low_date": "2026-11-20",
     "low_dd_pct": -89.7
@@ -100,7 +100,7 @@
   "fear_greed": {
     "score": 24.9,
     "rating": "extreme fear",
-    "timestamp": "2026-11-27T22:02:49+00:00",
+    "timestamp": "2026-11-27T23:59:59+00:00",
     "prev_close": 15.6,
     "prev_week": 18.6
   },
@@ -113,26 +113,53 @@
   },
   "breadth": {
     "date": "2026-11-27",
-    "above200_pct": 59.5,
-    "new_highs": 23,
-    "new_lows": 0,
-    "n": 499
+    "above200_pct": 0.0,
+    "new_highs": 25,
+    "new_lows": 1,
+    "n": 1
   },
   "sox_breadth": {
     "date": "2026-11-27",
-    "above200_pct": 10.0,
-    "above50_pct": 6.7,
-    "above200": [
-      "NXPI",
-      "QCOM",
-      "TXN"
-    ],
-    "n": 30,
+    "above200_pct": NaN,
+    "above50_pct": NaN,
+    "above200": [],
+    "n": 0,
     "members_asof": "2026-11-02",
-    "missing": []
+    "missing": [
+      "ADI",
+      "ALAB",
+      "AMAT",
+      "AMD",
+      "ARM",
+      "ASML",
+      "AVGO",
+      "COHR",
+      "CRDO",
+      "ENTG",
+      "GFS",
+      "INTC",
+      "KLAC",
+      "LRCX",
+      "LSCC",
+      "MCHP",
+      "MPWR",
+      "MRVL",
+      "MTSI",
+      "MU",
+      "NVDA",
+      "NXPI",
+      "ON",
+      "Q",
+      "QCOM",
+      "SITM",
+      "TER",
+      "TSEM",
+      "TSM",
+      "TXN"
+    ]
   },
   "usdkrw": {
     "date": "2026-11-27",
-    "value": 1333.0
+    "value": 1343.5
   }
 }
